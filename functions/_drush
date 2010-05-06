@@ -1,0 +1,78 @@
+#compdef drush
+
+typeset -gHA _drush_cmds
+_drush_cmds=(
+  ${=${(f)${"$(LC_ALL=C _call_program commands drush help)"#l#*Commands:}}/(#s)[[:space:]]#(#b)([a-z-[:space:]]##)[[:space:]]#(\([a-z, ?]##\))#/$match[1] :$match[1]${match[2]:+:${${match[2]//[(),]}// /:}}:}
+)
+
+local -a _1st_arguments
+_1st_arguments=(
+  'cache-clear:Clear a specific cache, or all caches'
+  'core-cli:Enter a new shell'
+  'cron:Run all cron hooks'
+  'help:Print help message'
+  'pm-download:Download core Drupal and projects'
+)
+
+local expl
+local context state line
+
+_arguments \
+  '(-r --root=)'{-r,--root=}'[Drupal root directory]' \
+  '(-l --uri=)'{-l,--uri=}'[URI of the drupal site]' \
+  '(-v --verbose)'{-v,--verbose}'[Display extra information]' \
+  '(-d --debug)'{-d,--debug}'[Display even more information]' \
+  '*:: :->subcmds' && return 0
+
+if (( CURRENT == 1 )); then
+  _describe -t commands "drush subcommand" _drush_cmds
+  return
+fi
+
+case "$words[1]" in
+  cache-clear)
+    local -a _cache_clear_arguments
+    _cache_clear_arguments=(
+      'all:Clear all caches'
+      'theme:Clear theme registry'
+      'menu:Rebuild menu'
+      'css+js:Clear css and js'
+    )
+    _describe -t commands "clear cache subcommand" _cache_clear_arguments ;;
+  pm-download)
+    _drupal_remote_directories;;
+  remove|edit|xo)
+    _drush_installed_formulae
+    _wanted installed_formulae expl 'installed formulae' compadd -a installed_formulae ;;
+esac
+
+_drupal_remote_directories() {
+  _cvs_remote_directories "-d:pserver:anonymous:anonymous@cvs.drupal.org:/cvs/drupal-contrib" contributions/modules/
+}
+
+_cvs_run() {
+  local cvsroot="$1" dir="$2"
+  shift 2
+  local d=/tmp/zsh-cvs-work-$$
+  mkdir $d >&/dev/null
+  cd $d
+  mkdir CVS >&/dev/null
+  print -r - "$cvsroot" > CVS/Root
+  print "$dir" > CVS/Repository
+  print D > CVS/Entries
+  CVS_IGNORE_REMOTE_ROOT= cvs "$@"
+  cd $OLDPWD
+  rm -rf $d
+}
+_cvs_remote_directories() {
+  local root="$1" dir="$2" subdirs
+  shift 2
+  subdirs=(${${(M)${(f)"$(_call_program directories _cvs_run "$root" "$dir" update -r00 -d -p 2>&1)"}:#* New directory \`*\' -- ignored}/(#b)*\`(*)\'*/$match[1]})
+  if (( $# )); then
+    eval "$1=(\"\$subdirs[@]\")"
+  else
+    if (( $#subdirs )); then
+      print -lr - $subdirs
+    fi
+  fi
+}

@@ -13,7 +13,6 @@ fi
 #setopt no_beep
 setopt auto_cd
 setopt multios
-setopt cdablevarS
 
 if [[ x$WINDOW != x ]]
 then
@@ -34,3 +33,5 @@ ZSH_THEME_GIT_PROMPT_CLEAN=""               # Text to display if the branch is c
 # Setup the prompt with pretty colors
 setopt prompt_subst
 
+# Load the theme
+source "$ZSH/themes/$ZSH_THEME.zsh-theme"
