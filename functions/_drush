@@ -1,23 +1,13 @@
 #compdef drush
 
-typeset -gHA _drush_cmds
-_drush_cmds=(
-  ${=${(f)${"$(LC_ALL=C _call_program commands drush help)"#l#*Commands:}}/(#s)[[:space:]]#(#b)([a-z-[:space:]]##)[[:space:]]#(\([a-z, ?]##\))#/$match[1] :$match[1]${match[2]:+:${${match[2]//[(),]}// /:}}:}
-)
+if (( ! $+_drush_cmds )); then
+  typeset -gH _drush_cmds
+  _drush_cmds=(${(f)"$(_call_program drush drush shell-complete)"})
+fi
 
-local -a _1st_arguments
-_1st_arguments=(
-  'cache-clear:Clear a specific cache, or all caches'
-  'core-cli:Enter a new shell'
-  'cron:Run all cron hooks'
-  'help:Print help message'
-  'pm-download:Download core Drupal and projects'
-)
+local expl context state line args
 
-local expl
-local context state line
-
-_arguments \
+_arguments -C \
   '(-r --root=)'{-r,--root=}'[Drupal root directory]' \
   '(-l --uri=)'{-l,--uri=}'[URI of the drupal site]' \
   '(-v --verbose)'{-v,--verbose}'[Display extra information]' \
@@ -25,12 +15,14 @@ _arguments \
   '*:: :->subcmds' && return 0
 
 if (( CURRENT == 1 )); then
-  _describe -t commands "drush subcommand" _drush_cmds
+  _describe -t subcommand 'subcommand' _drush_cmds
   return
 fi
 
+
+_
 case "$words[1]" in
-  cache-clear)
+  (cache-clear)
     local -a _cache_clear_arguments
     _cache_clear_arguments=(
       'all:Clear all caches'
@@ -41,9 +33,8 @@ case "$words[1]" in
     _describe -t commands "clear cache subcommand" _cache_clear_arguments ;;
   pm-download)
     _drupal_remote_directories;;
-  remove|edit|xo)
-    _drush_installed_formulae
-    _wanted installed_formulae expl 'installed formulae' compadd -a installed_formulae ;;
+  *)
+    
 esac
 
 _drupal_remote_directories() {
