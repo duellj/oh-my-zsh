@@ -20,7 +20,6 @@ if (( CURRENT == 1 )); then
 fi
 
 
-_
 case "$words[1]" in
   (cache-clear)
     local -a _cache_clear_arguments
@@ -31,7 +30,12 @@ case "$words[1]" in
       'css+js:Clear css and js'
     )
     _describe -t commands "clear cache subcommand" _cache_clear_arguments ;;
-  pm-download)
+  (pm-enable|en|pm-disable|dis|pm-uninstall|pm-updatecode|upc|pm-update|up|pm-info)
+    local -a _modules
+    _modules=(${(f)"$(_call_program drush drush --pipe pm-list)"})
+    _describe -t commands "module subcommand" _modules
+    ;;
+  (pm-download)
     _drupal_remote_directories;;
   *)
     
