@@ -49,10 +49,10 @@ _arguments -s "$args[@]" && ret=0
 return $ret
 
 _drupal_remote_directories() {
-  _cvs_remote_directories "-d:pserver:anonymous:anonymous@cvs.drupal.org:/cvs/drupal-contrib" contributions/modules/
+  _drush_cvs_remote_directories "-d:pserver:anonymous:anonymous@cvs.drupal.org:/cvs/drupal-contrib" contributions/modules/
 }
 
-_cvs_run() {
+_drush_cvs_run() {
   local cvsroot="$1" dir="$2"
   shift 2
   local d=/tmp/zsh-cvs-work-$$
@@ -66,10 +66,10 @@ _cvs_run() {
   cd $OLDPWD
   rm -rf $d
 }
-_cvs_remote_directories() {
+_drush_cvs_remote_directories() {
   local root="$1" dir="$2" subdirs
   shift 2
-  subdirs=(${${(M)${(f)"$(_call_program directories _cvs_run "$root" "$dir" update -r00 -d -p 2>&1)"}:#* New directory \`*\' -- ignored}/(#b)*\`(*)\'*/$match[1]})
+  subdirs=(${${(M)${(f)"$(_call_program directories _drush_cvs_run "$root" "$dir" update -r00 -d -p 2>&1)"}:#* New directory \`*\' -- ignored}/(#b)*\`(*)\'*/$match[1]})
   if (( $# )); then
     eval "$1=(\"\$subdirs[@]\")"
   else
