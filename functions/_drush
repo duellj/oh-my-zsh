@@ -1,26 +1,29 @@
 #compdef drush
+local expl context state line cmd args ret=1
 
 if (( ! $+_drush_cmds )); then
   typeset -gH _drush_cmds
   _drush_cmds=(${(f)"$(_call_program drush drush shell-complete)"})
 fi
 
-local expl context state line args
 
 _arguments -C \
   '(-r --root=)'{-r,--root=}'[Drupal root directory]' \
   '(-l --uri=)'{-l,--uri=}'[URI of the drupal site]' \
   '(-v --verbose)'{-v,--verbose}'[Display extra information]' \
   '(-d --debug)'{-d,--debug}'[Display even more information]' \
-  '*:: :->subcmds' && return 0
+  '1: :->cmd' \
+  '*:: :->args' && ret=0
 
-if (( CURRENT == 1 )); then
+if [[ $state != 'args' ]]; then
   _describe -t subcommand 'subcommand' _drush_cmds
-  return
+  return 0
 fi
 
+cmd="$words[1]"
+args=(${(f)"$(_call_program drush drush shell-complete --options $cmd)"})
 
-case "$words[1]" in
+case $cmd in
   (cache-clear)
     local -a _cache_clear_arguments
     _cache_clear_arguments=(
@@ -35,11 +38,15 @@ case "$words[1]" in
     _modules=(${(f)"$(_call_program drush drush --pipe pm-list)"})
     _describe -t commands "module subcommand" _modules
     ;;
+  (sql-dump)
+    args=("--result-file=+[save to a file]:result directory:_files -/")
+  ;;
   (pm-download)
     _drupal_remote_directories;;
-  *)
-    
 esac
+
+_arguments -s "$args[@]" && ret=0
+return $ret
 
 _drupal_remote_directories() {
   _cvs_remote_directories "-d:pserver:anonymous:anonymous@cvs.drupal.org:/cvs/drupal-contrib" contributions/modules/
