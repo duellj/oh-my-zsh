@@ -1,28 +1,52 @@
 #compdef drush
-local expl context state line cmd args ret=1
+#autoload
+#
+local state ret=1
 
-if (( ! $+_drush_cmds )); then
-  typeset -gH _drush_cmds
-  _drush_cmds=(${(f)"$(_call_program drush drush shell-complete)"})
-fi
+local -a _1st_arguments
 
+local expl
 
-_arguments -C \
-  '(-r --root=)'{-r,--root=}'[Drupal root directory]' \
-  '(-l --uri=)'{-l,--uri=}'[URI of the drupal site]' \
-  '(-v --verbose)'{-v,--verbose}'[Display extra information]' \
-  '(-d --debug)'{-d,--debug}'[Display even more information]' \
-  '1: :->cmd' \
-  '*:: :->args' && ret=0
+declare -ga common_args
+common_args=(${(f)"$(_call_program drush drush zsh-options --pipe)"})
+common_args+=(
+  '(-r --root=)'{-r,--root=}'[Drupal root directory to use (default: current directory)]:directory:_path_files -/'
+)
 
-if [[ $state != 'args' ]]; then
-  _describe -t subcommand 'subcommand' _drush_cmds
-  return 0
-fi
+typeset -A opt_args
+_arguments \
+  $common_args \
+  ':subcommand:->subcommand' \
+  '*::options:->options' && ret=0
+  
+case $state in
+  subcommand)
+    subcommands=(${(f)"$(_call_program drush drush zsh-commands --pipe)"})
+    _describe -t subcommands 'drush subcommand' subcommands && ret=0
+    ;;
+  
+  options)
+    declare -a args
+    declare -a local_args
+    
+    local_args=(${(f)"$(_call_program drush drush zsh-options --pipe $words[1])"})
+    
+    args=(
+      $common_args
+      $local_args
+    )
 
-cmd="$words[1]"
-args=(${(f)"$(_call_program drush drush shell-complete --options $cmd)"})
+    case $words[1] in
+      features-update|fu|feature-revert|fr)
+        local features
+        features=(${(f)"$(_call_program drush drush zsh-features-list --pipe)"})
+        
+        args+=(
+          '*:feature:('$features')'
+        )
+        ;;
 
+# <<<<<<< HEAD
 case $cmd in
   (cache-clear)
     local -a _cache_clear_arguments
@@ -43,38 +67,44 @@ case $cmd in
   ;;
   (pm-download)
     _drupal_remote_directories;;
+# =======
+#       pm-enable|en)
+#         args+=(
+#           ':module:__drush_modules'
+#         )
+#         ;;
+
+#       pm-disable|dis)
+#         local -a modules
+#         modules=(${(f)"$(_call_program drush drush zsh-extensions-list --status=enabled --pipe)"})
+
+#         args+=(
+#           '*:module:('$modules')'
+#         )
+#         ;;
+
+#       pm-uninstall)
+#         local -a modules
+#         modules=(${(f)"$(_call_program drush drush zsh-extensions-list --status=disabled --pipe)"})
+
+#         args+=(
+#           '*:module:('$modules')'
+#         )
+#         ;;
+#     esac
+    
+#     _arguments $args && ret=0
+#     ;;
+# >>>>>>> Updates to drush autocomplete
 esac
 
-_arguments -s "$args[@]" && ret=0
-return $ret
+__drush_modules () {
+  local expl
+  declare -a modules
 
-_drupal_remote_directories() {
-  _drush_cvs_remote_directories "-d:pserver:anonymous:anonymous@cvs.drupal.org:/cvs/drupal-contrib" contributions/modules/
+  modules=(${(f)"$(_call_program drush drush zsh-extensions-list --status=enabled --pipe)"})
+
+  _wanted modules expl 'modules' compadd $* - $modules
 }
 
-_drush_cvs_run() {
-  local cvsroot="$1" dir="$2"
-  shift 2
-  local d=/tmp/zsh-cvs-work-$$
-  mkdir $d >&/dev/null
-  cd $d
-  mkdir CVS >&/dev/null
-  print -r - "$cvsroot" > CVS/Root
-  print "$dir" > CVS/Repository
-  print D > CVS/Entries
-  CVS_IGNORE_REMOTE_ROOT= cvs "$@"
-  cd $OLDPWD
-  rm -rf $d
-}
-_drush_cvs_remote_directories() {
-  local root="$1" dir="$2" subdirs
-  shift 2
-  subdirs=(${${(M)${(f)"$(_call_program directories _drush_cvs_run "$root" "$dir" update -r00 -d -p 2>&1)"}:#* New directory \`*\' -- ignored}/(#b)*\`(*)\'*/$match[1]})
-  if (( $# )); then
-    eval "$1=(\"\$subdirs[@]\")"
-  else
-    if (( $#subdirs )); then
-      print -lr - $subdirs
-    fi
-  fi
-}
+return ret
