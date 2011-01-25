@@ -6,6 +6,6 @@ PROMPT=$'%{\e[0;34m%}%B┌─[%b%{\e[0m%}%{\e[1;32m%}%n%{\e[1;34m%}@%{\e[0m%}%{\
 RPROMPT='[%*]'
 PS2=$' \e[0;34m%}%B>%{\e[0m%}%b '
 
-ZSH_THEME_VCS_PROMPT="%s:(%{$fg[red]%}%b%u%{$reset_color%})%m"
+ZSH_THEME_VCS_PROMPT="%s:(%{$fg[red]%}%b%u%{$reset_color%}) %m"
 ZSH_THEME_VCS_PROMPT_DIRTY=" %{$fg[yellow]%}✗%{$reset_color%}"
-ZSH_THEME_VCS_PROMPT_PATCH=" mq(%p):%n/%c"
+ZSH_THEME_VCS_PROMPT_PATCH="mq(%p):%n/%c "
