@@ -11,10 +11,10 @@ typeset -ga precmd_functions
 autoload -Uz vcs_info
 
 zstyle ':vcs_info:*' enable hg git bzr svn
-zstyle ':vcs_info:*:*' formats "$ZSH_THEME_VCS_PROMPT"
+zstyle ':vcs_info:*:*' formats "%s:(%{$fg[red]%}%b%u%{$reset_color%})%m"
 zstyle ':vcs_info:(hg*|git*):*' get-revision true
 zstyle ':vcs_info:(hg*|git*):*' check-for-changes true
-zstyle ':vcs_info:(hg*|git*):*' unstagedstr "$ZSH_THEME_VCS_PROMPT_DIRTY"
+zstyle ':vcs_info:(hg*|git*):*' unstagedstr " %{$fg[yellow]%}✗%{$reset_color%}"
 
 # Git Config
 # zstyle ':vcs_info:git*+set-message:*' hooks git-st
@@ -23,8 +23,8 @@ zstyle ':vcs_info:(hg*|git*):*' unstagedstr "$ZSH_THEME_VCS_PROMPT_DIRTY"
 zstyle ':vcs_info:hg*:*' get-bookmarks true
 zstyle ':vcs_info:hg*:*' get-mq true
 zstyle ':vcs_info:hg*:*' get-unapplied true
-zstyle ':vcs_info:hg*:*' patch-format "$ZSH_THEME_VCS_PROMPT_PATCH"
-zstyle ':vcs_info:hg*:*' nopatch-format "$ZSH_THEME_VCS_PROMPT_PATCH"
+zstyle ':vcs_info:hg*:*' patch-format " mq(%p):%n/%c"
+zstyle ':vcs_info:hg*:*' nopatch-format " mq(%p):%n/%c"
 
 zstyle ':vcs_info:hg*:*' hgrevformat "%r" # Only show local revision.
 zstyle ':vcs_info:hg*:*' branchformat "%b" # Only show branch.
