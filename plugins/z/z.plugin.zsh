@@ -1,5 +1,5 @@
-if [ -f `brew --prefix`/etc/profile.d/z.sh ]; then
-  . `brew --prefix`/etc/profile.d/z.sh
+if [ -f /usr/local/etc/profile.d/z.sh ]; then
+  . /usr/local/etc/profile.d/z.sh
   function precmd () {
     _z --add "$(pwd -P)"
   }
