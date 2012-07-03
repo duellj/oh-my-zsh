@@ -7,5 +7,5 @@ RPROMPT='[%*]'
 PS2=$' \e[0;34m%}%B>%{\e[0m%}%b '
 
 ZSH_THEME_VCS_PROMPT="%s:(%{$fg[red]%}%b%u%{$reset_color%})%m"
-ZSH_THEME_VCS_PROMPT_DIRTY=" %{$fg[yellow]%}✗%{$reset_color%}"
+ZSH_THEME_VCS_PROMPT_DIRTY=" %{$fg[yellow]%}⚡%{$reset_color%}"
 ZSH_THEME_VCS_PROMPT_PATCH=" mq(%p):%n/%c"
