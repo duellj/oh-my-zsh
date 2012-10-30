@@ -21,12 +21,14 @@ alias dr='drush'
 alias dca='drush cc all'
 
 # Fix mistypes
-alias gi='git status'
+alias gs='git status'
 
 # get confirmation on these commands
 alias cp='cp -i'
 alias rm='rm -i'
 alias mv='mv -i'
+
+alias truncate='echo "" >'
 
 # clear tty
 alias c='clear'
@@ -67,6 +69,9 @@ alias solr-start='solr /usr/local/etc/solr/drupal/solr'
 
 # grc!!
 source "`brew --prefix grc`/etc/grc.bashrc"
+
+# MOr colors!!
+alias c='pygmentize -O style=monokai -f console256 -g'
 
 # Tmux
 alias tmux="TERM=screen-256color-bce tmux"
